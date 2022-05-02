@@ -24,12 +24,6 @@ Run it:
 emscripten_forge_server
 ```
 
-Making an "custom" env create request:
-
-```
-http://127.0.0.1:8000/create?env=custom
-```
-
 Making package install request in the "custom" env:
 
 ```
