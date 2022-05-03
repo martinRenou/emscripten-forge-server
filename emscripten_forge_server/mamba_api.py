@@ -1,14 +1,9 @@
 import os
-
 import pathlib
 
 import libmambapy
 
-from mamba.utils import (
-    get_index,
-    load_channels
-)
-
+from mamba.utils import get_index, load_channels
 
 __all__ = ["create", "install"]
 
@@ -117,45 +112,51 @@ class MambaSolver:
         return libmambapy.Transaction(api_solver, package_cache)
 
 
-def install(env_name: str, specs: list = [], channels: list = [], target_platform: str = None):
+def install(
+    env_name: str, specs: tuple = (), channels: tuple = (), target_platform: str = None
+):
     """Install packages in a given environment.
 
     Arguments
     ---------
     env_name : str
         The name of the environment where to install the packages.
-    specs : list of str
+    specs : tuple of str
         The list of spec strings e.g. ['xeus-python', 'matplotlib=3'].
-    channels : list of str
+    channels : tuple of str
         The channels from which to pull packages e.g. ['default', 'conda-forge'].
     Raises
     ------
     RuntimeError :
         If the solver did not find a solution or if the installation failed.
     """
-    prefix = '/home/martin/micromamba/envs/{}'.format(env_name)
-    (pathlib.Path(prefix) / 'conda-meta').mkdir(parents=True, exist_ok=True)
+    prefix = pathlib.Path(os.environ["CONDA_PREFIX"]) / "envs" / env_name
+    (prefix / "conda-meta").mkdir(parents=True, exist_ok=True)
+    (prefix / "pkgs").mkdir(parents=True, exist_ok=True)
 
     context = libmambapy.Context()
-    context.target_prefix = prefix
+    context.target_prefix = str(prefix)
+    context.pkgs_dirs = str(prefix / "pkgs")
 
     solver = MambaSolver(channels, target_platform, context)
 
     transaction = solver.solve(specs)
 
-    return transaction.execute(libmambapy.PrefixData(prefix))
+    return transaction.execute(libmambapy.PrefixData(str(prefix)))
 
 
-def create(env_name: str, specs: list = [], channels: list = [], target_platform: str = None):
+def create(
+    env_name: str, specs: tuple = (), channels: tuple = (), target_platform: str = None
+):
     """Create a mamba environment.
 
     Arguments
     ---------
     env_name : str
         The name of the environment.
-    specs : list of str
+    specs : tuple of str
         The list of spec strings e.g. ['xeus-python', 'matplotlib=3'].
-    channels : list of str
+    channels : tuple of str
         The channels from which to pull packages e.g. ['default', 'conda-forge'].
     target_platform : str
         The target platform for the environment.
