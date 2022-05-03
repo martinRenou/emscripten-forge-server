@@ -10,6 +10,7 @@ from emscripten_forge_server.config import get_config
 r = APIRouter()
 
 CHANNELS = ['/home/martin/micromamba/envs/xeus-python/conda-bld/', 'conda-forge']
+# CHANNELS = ['emscipten-forge', 'conda-forge']
 
 
 @r.get("/install")
