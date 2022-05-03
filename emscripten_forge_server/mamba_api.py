@@ -10,13 +10,14 @@ from mamba.utils import (
 )
 
 
-context = libmambapy.Context()
+__all__ = ["create", "install"]
 
 
 class MambaSolver:
-    def __init__(self, channels, platform, output_folder=None):
+    def __init__(self, channels, platform, context, output_folder=None):
         self.channels = channels
         self.platform = platform
+        self.context = context
         self.output_folder = output_folder or "local"
         self.pool = libmambapy.Pool()
         self.repos = []
@@ -110,36 +111,57 @@ class MambaSolver:
 
         if pkg_cache_path is None:
             # use values from conda
-            pkg_cache_path = context.pkgs_dirs
+            pkg_cache_path = self.context.pkgs_dirs
 
         package_cache = libmambapy.MultiPackageCache(pkg_cache_path)
         return libmambapy.Transaction(api_solver, package_cache)
 
 
-solver = MambaSolver(
-    ['/home/martin/micromamba/envs/xeus-python/conda-bld/', 'conda-forge'],
-    'emscripten-32'
-)
-# solver = MambaSolver(['emscripten-forge'], 'emscripten-32')
-
-
-def install(specs: list, prefix: str):
-    """Install packages given a list of specs and env prefix.
+def install(env_name: str, specs: list = [], channels: list = [], target_platform: str = None):
+    """Install packages in a given environment.
 
     Arguments
     ---------
+    env_name : str
+        The name of the environment where to install the packages.
     specs : list of str
         The list of spec strings e.g. ['xeus-python', 'matplotlib=3'].
-    prefix : str
-        The env prefix where to install the packages.
+    channels : list of str
+        The channels from which to pull packages e.g. ['default', 'conda-forge'].
+    Raises
+    ------
+    RuntimeError :
+        If the solver did not find a solution or if the installation failed.
     """
-    prefix = '/home/martin/micromamba/envs/{}'.format(prefix)
+    prefix = '/home/martin/micromamba/envs/{}'.format(env_name)
     (pathlib.Path(prefix) / 'conda-meta').mkdir(parents=True, exist_ok=True)
 
+    context = libmambapy.Context()
     context.target_prefix = prefix
+
+    solver = MambaSolver(channels, target_platform, context)
 
     transaction = solver.solve(specs)
 
-    transaction.execute(libmambapy.PrefixData(prefix))
+    return transaction.execute(libmambapy.PrefixData(prefix))
 
-    return {}
+
+def create(env_name: str, specs: list = [], channels: list = [], target_platform: str = None):
+    """Create a mamba environment.
+
+    Arguments
+    ---------
+    env_name : str
+        The name of the environment.
+    specs : list of str
+        The list of spec strings e.g. ['xeus-python', 'matplotlib=3'].
+    channels : list of str
+        The channels from which to pull packages e.g. ['default', 'conda-forge'].
+    target_platform : str
+        The target platform for the environment.
+    Raises
+    ------
+    RuntimeError :
+        If the solver did not find a solution or if the installation failed.
+    """
+    return install(env_name, target_platform, specs)

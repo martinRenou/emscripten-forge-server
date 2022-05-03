@@ -9,16 +9,20 @@ from emscripten_forge_server.config import get_config
 
 r = APIRouter()
 
+CHANNELS = ['/home/martin/micromamba/envs/xeus-python/conda-bld/', 'conda-forge']
+
 
 @r.get("/install")
 async def install(
-        packages: str = "",
-        channels: str = "",
+        env: str = "",
+        specs: str = "",
         config=Depends(get_config)
         ):
-    logs = mamba_install(packages.split(","), channels.split(","))
-
-    return dict(msg="installed", logs=logs, config=config)
+    try:
+        mamba_install(env, specs.split(","), CHANNELS, 'emscripten-32')
+        return dict(msg="success", config=config)
+    except RuntimeError as e:
+        return dict(msg="error", message=str(e), config=config)
 
 
 router = register_router(r)

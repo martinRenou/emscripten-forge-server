@@ -27,7 +27,7 @@ emscripten_forge_server
 Making package install request in the "custom" env:
 
 ```
-http://127.0.0.1:8000/install?env=custom&packages=xeus-python,matplotlib
+http://127.0.0.1:8000/install?env=custom&specs=xeus-python,matplotlib
 ```
 
 Making a pack request to pack everything with emscripten:
