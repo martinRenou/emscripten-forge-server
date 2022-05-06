@@ -10,6 +10,26 @@ You will first need to [install micromamba](https://github.com/mamba-org/mamba#m
 
 ```bash
 micromamba create -n emscripten-forge-server -c conda-forge mamba pip python=3.10 fps emscripten emboa
+micromamba activate emscripten-forge-server
+```
+
+Install emsdk:
+```bash
+git clone https://github.com/emscripten-core/emsdk
+
+pushd emsdk
+
+./emsdk install 3.1.2
+./emsdk activate 3.1.2
+
+export FILE_PACKAGER=$(pwd)/upstream/emscripten/tools/file_packager.py
+
+popd
+```
+
+Install emboa:
+```bash
+pip install git+https://github.com/emscripten-forge/emboa
 ```
 
 Then install the server:
