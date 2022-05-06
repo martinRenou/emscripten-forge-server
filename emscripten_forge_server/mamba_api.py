@@ -4,7 +4,7 @@ import sys
 
 import libmambapy
 
-from .utils import get_index, load_channels
+from mamba.utils import get_index, load_channels
 
 __all__ = ["MambaSolver", "create", "install"]
 
