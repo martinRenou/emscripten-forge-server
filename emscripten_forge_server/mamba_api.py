@@ -114,7 +114,11 @@ class MambaSolver:
 
 
 def install(
-    env_name: str, specs: tuple = (), channels: tuple = (), target_platform: str = None, base_prefix: str = None
+    env_name: str,
+    specs: tuple = (),
+    channels: tuple = (),
+    target_platform: str = None,
+    base_prefix: str = None,
 ):
     """Install packages in a given environment.
 
@@ -137,13 +141,15 @@ def install(
     if base_prefix is None:
         base_prefix = os.environ.get("MAMBA_ROOT_PREFIX", sys.prefix)
 
+    base_prefix = pathlib.Path(base_prefix)
+
     prefix = base_prefix / "envs" / env_name
     (prefix / "conda-meta").mkdir(parents=True, exist_ok=True)
     (base_prefix / "pkgs").mkdir(parents=True, exist_ok=True)
 
     context = libmambapy.Context()
     context.target_prefix = str(prefix)
-    context.pkgs_dirs = str(base_prefix / "pkgs")
+    context.pkgs_dirs = [str(base_prefix / "pkgs")]
 
     solver = MambaSolver(channels, target_platform, context)
 
@@ -153,7 +159,11 @@ def install(
 
 
 def create(
-    env_name: str, specs: tuple = (), channels: tuple = (), target_platform: str = None, base_prefix: str = None
+    env_name: str,
+    specs: tuple = (),
+    channels: tuple = (),
+    target_platform: str = None,
+    base_prefix: str = None,
 ):
     """Create a mamba environment.
 
